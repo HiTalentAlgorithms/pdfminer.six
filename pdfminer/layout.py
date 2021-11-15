@@ -481,7 +481,7 @@ class LTTextLineHorizontal(LTTextLine):
     # LTContainer only considers LTItem (no bounding box).
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
         if isinstance(obj, LTChar) and self.word_margin:
-            margin = self.word_margin * max(obj.width, obj.height)
+            margin = self.word_margin * obj.width
             if self._x1 < obj.x0 - margin:
                 LTContainer.add(self, LTAnno(' '))
         self._x1 = obj.x1
@@ -559,7 +559,7 @@ class LTTextLineVertical(LTTextLine):
     # LTContainer only considers LTItem (no bounding box).
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
         if isinstance(obj, LTChar) and self.word_margin:
-            margin = self.word_margin * max(obj.width, obj.height)
+            margin = self.word_margin * obj.height
             if obj.y1 + margin < self._y0:
                 LTContainer.add(self, LTAnno(' '))
         self._y0 = obj.y0

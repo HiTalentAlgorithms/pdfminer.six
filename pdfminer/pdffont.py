@@ -7,12 +7,12 @@ from typing import (Any, BinaryIO, Dict, Iterable, Iterator, List, Mapping,
 
 from . import settings
 from .cmapdb import CMap
-from .cmapdb import IdentityUnicodeMap
 from .cmapdb import CMapBase
 from .cmapdb import CMapDB
 from .cmapdb import CMapParser
-from .cmapdb import UnicodeMap
 from .cmapdb import FileUnicodeMap
+from .cmapdb import IdentityUnicodeMap
+from .cmapdb import UnicodeMap
 from .encodingdb import EncodingDB
 from .encodingdb import name2unicode
 from .fontmetrics import FONT_METRICS
@@ -744,10 +744,15 @@ class PDFCIDFont(PDFFont):
                 raise PDFFontError('BaseFont is missing')
             self.basefont = 'unknown'
         self.cidsysteminfo = dict_value(spec.get('CIDSystemInfo', {}))
-        cid_registry = resolve1(
-            self.cidsysteminfo.get('Registry', b'unknown')).decode("latin1")
-        cid_ordering = resolve1(
-            self.cidsysteminfo.get('Ordering', b'unknown')).decode("latin1")
+        try:
+            cid_registry = resolve1(self.cidsysteminfo.get('Registry', b'unknown')).decode("latin1")
+        except Exception:
+            cid_registry = b'unknown'.decode("latin1")
+        try:
+            cid_ordering = resolve1(elf.cidsysteminfo.get('Ordering', b'unknown')).decode("latin1")
+        except Exception:
+            cid_ordering = b'unknown'.decode("latin1")
+
         self.cidcoding = '{}-{}'.format(cid_registry, cid_ordering)
         self.cmap: CMapBase = self.get_cmap_from_spec(spec, strict)
 

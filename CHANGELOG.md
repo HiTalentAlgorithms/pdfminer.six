@@ -3,10 +3,14 @@ All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Unreleased]
+## [20211115]
 
 ### Added
 - Support for identity cmap's ([#626](https://github.com/pdfminer/pdfminer.six/pull/626))
+
+### Fixed
+- Fix issue of TypeError: `cid_registry` and `cid_ordering` are not `bytes`
+- Fix the logic of getting `margin` in `LTTextLineHorizontal` and `LTTextLineVertical`
 
 ## [20211012]
 
