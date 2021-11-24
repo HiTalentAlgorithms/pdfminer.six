@@ -2,7 +2,7 @@ pdfminer.six
 ============
 
 [![Build Status](https://travis-ci.com/pdfminer/pdfminer.six.svg?branch=develop)](https://travis-ci.com/pdfminer/pdfminer.six)
-[![PyPI version](https://img.shields.io/pypi/v/pdfminer.six.svg)](https://pypi.python.org/pypi/pdfminer.six/)
+[![PyPI version](https://img.shields.io/pypi/v/pdfminer.six.svg)](https://pypi.org/project/pdfminer.hitalent/)
 [![gitter](https://badges.gitter.im/pdfminer-six/Lobby.svg)](https://gitter.im/pdfminer-six/Lobby?utm_source=badge&utm_medium)
 
 *We fathom PDF*

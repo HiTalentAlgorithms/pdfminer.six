@@ -26,7 +26,7 @@ setup(
     license='MIT/X',
     author='Yusuke Shinyama + Philippe Guglielmetti + Xu Ma',
     author_email='beantsxu@gmail.com',
-    url='https://github.com/HiTalentAlgorithms/pdfminer.six',
+    url='https://github.com/HiTalentAlgorithms/pdfminer.hitalent',
     scripts=[
         'tools/pdf2txt.py',
         'tools/dumppdf.py',
