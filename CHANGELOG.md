@@ -2,6 +2,10 @@
 All notable changes in pdfminer.six will be documented in this file. 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+## [20211125]
+
+### Fixed
+- Changed the logic of getting `margin` in `LTTextLineHorizontal` and `LTTextLineVertical` to use `avg_width`/`avg_height` of the text.
 
 ## [20211124]
 
