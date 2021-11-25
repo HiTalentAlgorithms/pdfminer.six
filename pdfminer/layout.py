@@ -454,6 +454,8 @@ class LTTextLine(LTTextContainer[TextLineElement]):
     def __init__(self, word_margin: float) -> None:
         super().__init__()
         self.word_margin = word_margin
+        self._avg_char_width = None
+        self._avg_char_height = None
         return
 
     def __repr__(self) -> str:
@@ -480,12 +482,19 @@ class LTTextLineHorizontal(LTTextLine):
     # Incompatible override: we take an LTComponent (with bounding box), but
     # LTContainer only considers LTItem (no bounding box).
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
-        if isinstance(obj, LTChar) and self.word_margin:
-            margin = self.word_margin * max(obj.width,self.width)
+        length_objs = len(self._objs)
+        if self._avg_char_width is None:
+            temp_avg = obj.width
+        else:
+            temp_avg = self._avg_char_width * (length_objs / (length_objs + 1)) + obj.width / (length_objs + 1)
+        if isinstance(obj, LTChar) and self.word_margin and self._objs:
+            margin = self.word_margin * temp_avg
             if self._x1 < obj.x0 - margin:
                 LTContainer.add(self, LTAnno(' '))
+                temp_avg = temp_avg * ((length_objs + 1) / length_objs)
         self._x1 = obj.x1
         super().add(obj)
+        self._avg_char_width = temp_avg
         return
 
     def find_neighbors(
@@ -558,12 +567,19 @@ class LTTextLineVertical(LTTextLine):
     # Incompatible override: we take an LTComponent (with bounding box), but
     # LTContainer only considers LTItem (no bounding box).
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
-        if isinstance(obj, LTChar) and self.word_margin:
-            margin = self.word_margin * max(obj.height,self.height)
+        length_objs = len(self._objs)
+        if self._avg_char_height is None:
+            temp_avg = obj.width
+        else:
+            temp_avg = self._avg_char_height * (length_objs / (length_objs + 1)) + obj.height / (length_objs + 1)
+        if isinstance(obj, LTChar) and self.word_margin and self._objs:
+            margin = self.word_margin * temp_avg
             if obj.y1 + margin < self._y0:
                 LTContainer.add(self, LTAnno(' '))
+                temp_avg = temp_avg * (length_objs + 1 / length_objs)
         self._y0 = obj.y0
         super().add(obj)
+        self._avg_char_height = temp_avg
         return
 
     def find_neighbors(
