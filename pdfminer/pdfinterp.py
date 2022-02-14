@@ -1016,6 +1016,8 @@ class PDFPageInterpreter:
         except PSEOF:
             # empty page
             return
+
+        before_rgb_func = None  # support do_rgb methods  e.g. : `q BT 0 g 42.52 841.89 rgb(0, 0, 0) Td`
         while 1:
             try:
                 (_, obj) = parser.nextobject()
@@ -1023,12 +1025,20 @@ class PDFPageInterpreter:
                 break
             if isinstance(obj, PSKeyword):
                 name = keyword_name(obj)
-                method = "do_%s" % name.replace("*", "_a").replace('"', "_w").replace(
-                    "'", "_q"
-                )
+                method = "do_%s" % name.replace("*", "_a").replace('"', "_w").replace("'", "_q")
                 if hasattr(self, method):
                     func = getattr(self, method)
                     nargs = func.__code__.co_argcount - 1
+                    # support do_rgb methods
+                    if name == "rgb":
+                        before_rgb_func = func
+                        continue
+                    elif before_rgb_func is not None:
+                        args = self.pop(1)
+                        before_rgb_func(*args)
+                        log.debug("exec: %s %r", "rgb", args)
+                        before_rgb_func = None
+                    # end support do_rgb methods
                     if nargs:
                         args = self.pop(nargs)
                         log.debug("exec: %s %r", name, args)

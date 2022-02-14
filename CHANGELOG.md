@@ -2,6 +2,11 @@
 All notable changes in pdfminer.six will be documented in this file. 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+## [20220214]
+
+### Added
+- Support for `rgb` token type. e.g.: `42.52 841.89 rgb(0, 0, 0) Td`
+
 ## [20211125]
 
 ### Fixed
