@@ -669,6 +669,14 @@ class PDFPageInterpreter:
         self.graphicstate.ncolor = (cast(float, r), cast(float, g), cast(float, b))
         return
 
+    def do_rgb(self, rgb: PDFStackT) -> None:
+        """Set RGB color for nonstroking operations"""
+        rgb = cast(bytes, rgb)
+        r, g, b = (float(i) for i in str(rgb.decode()).split(', '))
+        self.graphicstate.ncolor = \
+            (cast(float, r), cast(float, g), cast(float, b))
+        return
+
     def do_K(self, c: PDFStackT, m: PDFStackT, y: PDFStackT, k: PDFStackT) -> None:
         """Set CMYK color for stroking operations"""
         self.graphicstate.scolor = (

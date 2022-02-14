@@ -4,9 +4,10 @@ cryptography
 chardet
 
 [dev]
-nose
-tox
-mypy==0.910
+pytest
+nox
+black
+mypy==0.931
 
 [docs]
 sphinx

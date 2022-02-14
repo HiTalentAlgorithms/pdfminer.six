@@ -4,6 +4,7 @@ LICENSE
 MANIFEST.in
 Makefile
 README.md
+noxfile.py
 setup.py
 cmaprsrc/README.txt
 cmaprsrc/cid2code_Adobe_CNS1.txt
@@ -18,6 +19,7 @@ pdfminer/ascii85.py
 pdfminer/ccitt.py
 pdfminer/cmapdb.py
 pdfminer/converter.py
+pdfminer/data_structures.py
 pdfminer/encodingdb.py
 pdfminer/fontmetrics.py
 pdfminer/glyphlist.py
@@ -36,6 +38,7 @@ pdfminer/pdfpage.py
 pdfminer/pdfparser.py
 pdfminer/pdftypes.py
 pdfminer/psparser.py
+pdfminer/py.typed
 pdfminer/runlength.py
 pdfminer/settings.py
 pdfminer/utils.py
