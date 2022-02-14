@@ -1054,7 +1054,7 @@ class PDFCIDFont(PDFFont):
         except Exception:
             cid_registry = b"unknown".decode("latin1")
         try:
-            cid_ordering = resolve1(elf.cidsysteminfo.get("Ordering", b"unknown")).decode("latin1")
+            cid_ordering = resolve1(self.cidsysteminfo.get("Ordering", b"unknown")).decode("latin1")
         except Exception:
             cid_ordering = b"unknown".decode("latin1")
 
