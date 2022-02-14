@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: pdfminer.hitalent
-Version: 20220214
+Version: 20220215
 Summary: PDF parser and analyzer
 Home-page: https://github.com/HiTalentAlgorithms/pdfminer.hitalent
 Author: Yusuke Shinyama + Philippe Guglielmetti + Xu Ma
