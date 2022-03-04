@@ -1188,6 +1188,7 @@ class PDFCIDFont(PDFFont):
             return self.unicode_map.get_unichr(cid)
         except KeyError:
             if self._cmap_dif is not None:
+                # The ordered CIDFont is corrected with the k-V difference
                 try:
                     _chr = chr(cid + self._cmap_dif)
                     self.unicode_map.cid2unichr[cid] = _chr

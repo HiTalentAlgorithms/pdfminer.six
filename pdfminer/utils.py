@@ -803,6 +803,8 @@ def format_int_alpha(value: int) -> str:
 
 
 def get_cmap_dif(raw_data):
+    """Check whether the K-V differences in the CMap table are consistent"""
+
     raw_data_decode = raw_data.decode()
     start = raw_data_decode.find("beginbfchar")
     end = raw_data_decode.find("endbfchar", start) if start >= 0 else -1
