@@ -43,7 +43,7 @@ from .psparser import PSKeyword
 from .psparser import PSLiteral
 from .psparser import PSStackParser
 from .psparser import literal_name
-from .utils import Matrix, Point
+from .utils import Matrix, Point, get_cmap_dif
 from .utils import Rect
 from .utils import apply_matrix_norm
 from .utils import choplist
@@ -1060,6 +1060,7 @@ class PDFCIDFont(PDFFont):
 
         self.cidcoding = "{}-{}".format(cid_registry, cid_ordering)
         self.cmap: CMapBase = self.get_cmap_from_spec(spec, strict)
+        self._cmap_dif = None
 
         try:
             descriptor = dict_value(spec["FontDescriptor"])
@@ -1074,9 +1075,10 @@ class PDFCIDFont(PDFFont):
         self.unicode_map: Optional[UnicodeMap] = None
         if "ToUnicode" in spec:
             if isinstance(spec["ToUnicode"], PDFStream):
-                strm = stream_value(spec["ToUnicode"])
+                strm_data = stream_value(spec["ToUnicode"]).get_data()
                 self.unicode_map = FileUnicodeMap()
-                CMapParser(self.unicode_map, BytesIO(strm.get_data())).run()
+                self._cmap_dif = get_cmap_dif(strm_data)
+                CMapParser(self.unicode_map, BytesIO(strm_data)).run()
             else:
                 cmap_name = literal_name(spec["ToUnicode"])
                 encoding = literal_name(spec["Encoding"])
@@ -1185,6 +1187,14 @@ class PDFCIDFont(PDFFont):
                 raise KeyError(cid)
             return self.unicode_map.get_unichr(cid)
         except KeyError:
+            if self._cmap_dif is not None:
+                # The ordered CIDFont is corrected with the k-V difference
+                try:
+                    _chr = chr(cid + self._cmap_dif)
+                    self.unicode_map.cid2unichr[cid] = _chr
+                    return _chr
+                except ValueError:
+                    raise PDFUnicodeNotDefined(self.cidcoding, cid)
             raise PDFUnicodeNotDefined(self.cidcoding, cid)
 
 
