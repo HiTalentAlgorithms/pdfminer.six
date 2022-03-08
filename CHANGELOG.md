@@ -2,6 +2,11 @@
 All notable changes in pdfminer.six will be documented in this file. 
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+## [20220308]
+
+### Added
+- Added features: Add more than one `LTAnno` at a time
+
 ## [20220304]
 
 ### Added

@@ -525,6 +525,8 @@ class LTTextLineHorizontal(LTTextLine):
             margin = self.word_margin * temp_avg
             if self._x1 < obj.x0 - margin:
                 LTContainer.add(self, LTAnno(" "))
+                for _ in range(int(round(((obj.x0 - self._x1) - margin) / temp_avg, 1))):
+                    LTContainer.add(self, LTAnno(" "))
                 temp_avg = temp_avg * ((length_objs + 1) / length_objs)
         self._x1 = obj.x1
         super().add(obj)
@@ -600,6 +602,8 @@ class LTTextLineVertical(LTTextLine):
             margin = self.word_margin * temp_avg
             if obj.y1 + margin < self._y0:
                 LTContainer.add(self, LTAnno(" "))
+                for _ in range(int(round(((self._y0 - obj.y1) - margin) / temp_avg, 1))):
+                    LTContainer.add(self, LTAnno(" "))
                 temp_avg = temp_avg * (length_objs + 1 / length_objs)
         self._y0 = obj.y0
         super().add(obj)
