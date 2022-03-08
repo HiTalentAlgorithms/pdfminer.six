@@ -38,7 +38,7 @@ test_strings = {
     "zen_of_python_corrupted.pdf": "Mai 30, 18 13:27\n\nzen_of_python.txt",
     "contrib/issue_566_test_1.pdf": "ISSUE Date：2019-4-25 Buyer：黎荣",
     "contrib/issue_566_test_2.pdf": "甲方：中国饮料有限公司（盖章）",
-    "contrib/issue-625-identity-cmap.pdf": "Termin płatności: 2021-05-03",
+    "contrib/issue-625-identity-cmap.pdf": "Termin płatności:  2021-05-03",
 }
 
 
