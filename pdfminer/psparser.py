@@ -51,7 +51,6 @@ class PSObject:
 
 
 class PSLiteral(PSObject):
-
     """A class that represents a PostScript literal.
 
     Postscript literals are used as identifiers, such as
@@ -74,7 +73,6 @@ class PSLiteral(PSObject):
 
 
 class PSKeyword(PSObject):
-
     """A class that represents a PostScript keyword.
 
     PostScript keywords are a dozen of predefined words.
@@ -178,12 +176,10 @@ ESC_STRING = {
     b"\\": 92,
 }
 
-
 PSBaseParserToken = Union[float, bool, PSLiteral, PSKeyword, bytes]
 
 
 class PSBaseParser:
-
     """Most basic PostScript parser that performs only tokenization."""
 
     BUFSIZ = 4096
@@ -248,7 +244,7 @@ class PSBaseParser:
         while 1:
             self.fillbuf()
             if eol:
-                c = self.buf[self.charpos : self.charpos + 1]
+                c = self.buf[self.charpos: self.charpos + 1]
                 # handle b'\r\n'
                 if c == b"\n":
                     linebuf += c
@@ -256,14 +252,14 @@ class PSBaseParser:
                 break
             m = EOL.search(self.buf, self.charpos)
             if m:
-                linebuf += self.buf[self.charpos : m.end(0)]
+                linebuf += self.buf[self.charpos: m.end(0)]
                 self.charpos = m.end(0)
                 if linebuf[-1:] == b"\r":
                     eol = True
                 else:
                     break
             else:
-                linebuf += self.buf[self.charpos :]
+                linebuf += self.buf[self.charpos:]
                 self.charpos = len(self.buf)
         log.debug("nextline: %r, %r", linepos, linebuf)
 
@@ -299,7 +295,7 @@ class PSBaseParser:
         if not m:
             return len(s)
         j = m.start(0)
-        c = s[j : j + 1]
+        c = s[j: j + 1]
         self._curtokenpos = self.bufpos + j
         if c == b"%":
             self._curtoken = b"%"
@@ -361,7 +357,7 @@ class PSBaseParser:
             return len(s)
         j = m.start(0)
         self._curtoken += s[i:j]
-        c = s[j : j + 1]
+        c = s[j: j + 1]
         if c == b"#":
             self.hex = b""
             self._parse1 = self._parse_literal_hex
@@ -375,7 +371,7 @@ class PSBaseParser:
         return j
 
     def _parse_literal_hex(self, s: bytes, i: int) -> int:
-        c = s[i : i + 1]
+        c = s[i: i + 1]
         if HEX.match(c) and len(self.hex) < 2:
             self.hex += c
             return i + 1
@@ -391,7 +387,7 @@ class PSBaseParser:
             return len(s)
         j = m.start(0)
         self._curtoken += s[i:j]
-        c = s[j : j + 1]
+        c = s[j: j + 1]
         if c == b".":
             self._curtoken += c
             self._parse1 = self._parse_float
@@ -441,7 +437,7 @@ class PSBaseParser:
             return len(s)
         j = m.start(0)
         self._curtoken += s[i:j]
-        c = s[j : j + 1]
+        c = s[j: j + 1]
         if c == b"\\":
             self.oct = b""
             self._parse1 = self._parse_string_1
@@ -465,20 +461,23 @@ class PSBaseParser:
 
         PDF Reference 3.2.3
         """
-        c = s[i : i + 1]
+        c = s[i: i + 1]
         if OCT_STRING.match(c) and len(self.oct) < 3:
             self.oct += c
             return i + 1
 
         elif self.oct:
-            self._curtoken += bytes((int(self.oct, 8),))
+            try:
+                self._curtoken += bytes((int(self.oct, 8),))
+            except ValueError:
+                self._curtoken += bytes((int(b'040', 8),))  # default to ' '
             self._parse1 = self._parse_string
             return i
 
         elif c in ESC_STRING:
             self._curtoken += bytes((ESC_STRING[c],))
 
-        elif c == b"\r" and len(s) > i + 1 and s[i + 1 : i + 2] == b"\n":
+        elif c == b"\r" and len(s) > i + 1 and s[i + 1: i + 2] == b"\n":
             # If current and next character is \r\n skip both because enters
             # after a \ are ignored
             i += 1
@@ -488,7 +487,7 @@ class PSBaseParser:
         return i + 1
 
     def _parse_wopen(self, s: bytes, i: int) -> int:
-        c = s[i : i + 1]
+        c = s[i: i + 1]
         if c == b"<":
             self._add_token(KEYWORD_DICT_BEGIN)
             self._parse1 = self._parse_main
@@ -498,7 +497,7 @@ class PSBaseParser:
         return i
 
     def _parse_wclose(self, s: bytes, i: int) -> int:
-        c = s[i : i + 1]
+        c = s[i: i + 1]
         if c == b">":
             self._add_token(KEYWORD_DICT_END)
             i += 1
