@@ -4,6 +4,13 @@ All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20220317]
+
+### Fixed
+
+- Fixed Bugs: When `paint_path()` is called with a `path` that has `h` command  but length is 0, it will crash. 
+  - Depends on Section8.5.1 in PDF Reference Document V1.7
+
 ## [20220314]
 
 ### Fixed
