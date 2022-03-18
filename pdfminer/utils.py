@@ -805,7 +805,7 @@ def format_int_alpha(value: int) -> str:
 def get_cmap_dif(raw_data):
     """Check whether the K-V differences in the CMap table are consistent"""
 
-    raw_data_decode = raw_data.decode()
+    raw_data_decode = raw_data.decode(errors="ignore")
     start = raw_data_decode.find("beginbfchar")
     end = raw_data_decode.find("endbfchar", start) if start >= 0 else -1
     if 0 <= start < end:
@@ -815,7 +815,7 @@ def get_cmap_dif(raw_data):
             return None
         dif = None
         for cmap in cmaps[1:-1]:
-            cmap_values = list(re.finditer(r"<((?:\d|[a-f])+)>", cmap, re.I))
+            cmap_values = list(re.finditer(r"<\s?((?:\d|[a-f])+)\s?>", cmap, re.I))
             # not standard CMAP
             if len(cmap_values) < 2:
                 return None

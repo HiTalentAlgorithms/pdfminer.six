@@ -1102,6 +1102,11 @@ class PDFCIDFont(PDFFont):
             except CMapDB.CMapNotFound:
                 pass
 
+        # cmap is empty and basefont name is CIDFont, set cmap_dif to default value 29
+        # the default value is subject to verification
+        if self.unicode_map and not self.unicode_map.cid2unichr and self.basefont.startswith('CIDFont'):
+            self._cmap_dif = 29
+
         self.vertical = self.cmap.is_vertical()
         if self.vertical:
             # writing mode: vertical
