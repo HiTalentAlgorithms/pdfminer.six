@@ -318,6 +318,11 @@ class CMapParser(PSStackParser[PSKeyword]):
             return
         elif token is self.KEYWORD_ENDCMAP:
             self._in_cmap = False
+            if _popall := self.popall():
+                objs = [obj for (__, obj) in _popall]
+                for (cid, code) in choplist(2, objs):
+                    if isinstance(cid, bytes) and isinstance(code, bytes):
+                        self.cmap.add_cid2unichr(nunpack(cid), code)
             return
         if not self._in_cmap:
             return
