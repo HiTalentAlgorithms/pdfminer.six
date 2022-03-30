@@ -19,12 +19,12 @@ from typing import (
 
 from . import settings
 from .cmapdb import CMap
-from .cmapdb import IdentityUnicodeMap
 from .cmapdb import CMapBase
 from .cmapdb import CMapDB
 from .cmapdb import CMapParser
-from .cmapdb import UnicodeMap
 from .cmapdb import FileUnicodeMap
+from .cmapdb import IdentityUnicodeMap
+from .cmapdb import UnicodeMap
 from .encodingdb import EncodingDB
 from .encodingdb import name2unicode
 from .fontmetrics import FONT_METRICS
@@ -43,7 +43,7 @@ from .psparser import PSKeyword
 from .psparser import PSLiteral
 from .psparser import PSStackParser
 from .psparser import literal_name
-from .utils import Matrix, Point
+from .utils import Matrix, Point, get_cmap_dif
 from .utils import Rect
 from .utils import apply_matrix_norm
 from .utils import choplist
@@ -105,7 +105,6 @@ class FontMetricsDB:
 
 # int here means that we're not extending PSStackParser with additional types.
 class Type1FontHeaderParser(PSStackParser[int]):
-
     KEYWORD_BEGIN = KWD(b"begin")
     KEYWORD_END = KWD(b"end")
     KEYWORD_DEF = KWD(b"def")
@@ -684,7 +683,7 @@ class CFFFont:
             # Format 0
             n = self.nglyphs - 1
             for (gid, sid) in enumerate(
-                cast(Tuple[int, ...], struct.unpack(">" + "H" * n, self.fp.read(2 * n)))
+                    cast(Tuple[int, ...], struct.unpack(">" + "H" * n, self.fp.read(2 * n)))
             ):
                 gid += 1
                 sidname = self.getstr(sid)
@@ -849,10 +848,10 @@ FontWidthDict = Union[Dict[int, float], Dict[str, float]]
 
 class PDFFont:
     def __init__(
-        self,
-        descriptor: Mapping[str, Any],
-        widths: FontWidthDict,
-        default_width: Optional[float] = None,
+            self,
+            descriptor: Mapping[str, Any],
+            widths: FontWidthDict,
+            default_width: Optional[float] = None,
     ) -> None:
         self.descriptor = descriptor
         self.widths: FontWidthDict = resolve_all(widths)
@@ -938,10 +937,10 @@ class PDFFont:
 
 class PDFSimpleFont(PDFFont):
     def __init__(
-        self,
-        descriptor: Mapping[str, Any],
-        widths: FontWidthDict,
-        spec: Mapping[str, Any],
+            self,
+            descriptor: Mapping[str, Any],
+            widths: FontWidthDict,
+            spec: Mapping[str, Any],
     ) -> None:
         # Font encoding is specified either by a name of
         # built-in encoding or a dictionary that describes
@@ -1038,10 +1037,10 @@ class PDFCIDFont(PDFFont):
     default_disp: Union[float, Tuple[Optional[float], float]]
 
     def __init__(
-        self,
-        rsrcmgr: "PDFResourceManager",
-        spec: Mapping[str, Any],
-        strict: bool = settings.STRICT,
+            self,
+            rsrcmgr: "PDFResourceManager",
+            spec: Mapping[str, Any],
+            strict: bool = settings.STRICT,
     ) -> None:
         try:
             self.basefont = literal_name(spec["BaseFont"])
@@ -1050,14 +1049,18 @@ class PDFCIDFont(PDFFont):
                 raise PDFFontError("BaseFont is missing")
             self.basefont = "unknown"
         self.cidsysteminfo = dict_value(spec.get("CIDSystemInfo", {}))
-        cid_registry = resolve1(self.cidsysteminfo.get("Registry", b"unknown")).decode(
-            "latin1"
-        )
-        cid_ordering = resolve1(self.cidsysteminfo.get("Ordering", b"unknown")).decode(
-            "latin1"
-        )
+        try:
+            cid_registry = resolve1(self.cidsysteminfo.get("Registry", b"unknown")).decode("latin1")
+        except Exception:
+            cid_registry = b"unknown".decode("latin1")
+        try:
+            cid_ordering = resolve1(self.cidsysteminfo.get("Ordering", b"unknown")).decode("latin1")
+        except Exception:
+            cid_ordering = b"unknown".decode("latin1")
+
         self.cidcoding = "{}-{}".format(cid_registry, cid_ordering)
         self.cmap: CMapBase = self.get_cmap_from_spec(spec, strict)
+        self._cmap_dif = None
 
         try:
             descriptor = dict_value(spec["FontDescriptor"])
@@ -1072,16 +1075,17 @@ class PDFCIDFont(PDFFont):
         self.unicode_map: Optional[UnicodeMap] = None
         if "ToUnicode" in spec:
             if isinstance(spec["ToUnicode"], PDFStream):
-                strm = stream_value(spec["ToUnicode"])
+                strm_data = stream_value(spec["ToUnicode"]).get_data()
                 self.unicode_map = FileUnicodeMap()
-                CMapParser(self.unicode_map, BytesIO(strm.get_data())).run()
+                self._cmap_dif = get_cmap_dif(strm_data)
+                CMapParser(self.unicode_map, BytesIO(strm_data)).run()
             else:
                 cmap_name = literal_name(spec["ToUnicode"])
                 encoding = literal_name(spec["Encoding"])
                 if (
-                    "Identity" in cid_ordering
-                    or "Identity" in cmap_name
-                    or "Identity" in encoding
+                        "Identity" in cid_ordering
+                        or "Identity" in cmap_name
+                        or "Identity" in encoding
                 ):
                     self.unicode_map = IdentityUnicodeMap()
         elif self.cidcoding in ("Adobe-Identity", "Adobe-UCS"):
@@ -1097,6 +1101,11 @@ class PDFCIDFont(PDFFont):
                 )
             except CMapDB.CMapNotFound:
                 pass
+
+        # cmap is empty and basefont name is CIDFont, set cmap_dif to default value 29
+        # the default value is subject to verification
+        if self.unicode_map and not self.unicode_map.cid2unichr and self.basefont.startswith('CIDFont'):
+            self._cmap_dif = 29
 
         self.vertical = self.cmap.is_vertical()
         if self.vertical:
@@ -1183,6 +1192,14 @@ class PDFCIDFont(PDFFont):
                 raise KeyError(cid)
             return self.unicode_map.get_unichr(cid)
         except KeyError:
+            if self._cmap_dif is not None:
+                # The ordered CIDFont is corrected with the k-V difference
+                try:
+                    _chr = chr(cid + self._cmap_dif)
+                    self.unicode_map.cid2unichr[cid] = _chr
+                    return _chr
+                except ValueError:
+                    raise PDFUnicodeNotDefined(self.cidcoding, cid)
             raise PDFUnicodeNotDefined(self.cidcoding, cid)
 
 

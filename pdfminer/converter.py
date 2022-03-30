@@ -54,10 +54,10 @@ class PDFLayoutAnalyzer(PDFTextDevice):
     ctm: Matrix
 
     def __init__(
-        self,
-        rsrcmgr: PDFResourceManager,
-        pageno: int = 1,
-        laparams: Optional[LAParams] = None,
+            self,
+            rsrcmgr: PDFResourceManager,
+            pageno: int = 1,
+            laparams: Optional[LAParams] = None,
     ) -> None:
         PDFTextDevice.__init__(self, rsrcmgr)
         self.pageno = pageno
@@ -99,12 +99,12 @@ class PDFLayoutAnalyzer(PDFTextDevice):
         self.cur_item.add(item)
 
     def paint_path(
-        self,
-        gstate: PDFGraphicState,
-        stroke: bool,
-        fill: bool,
-        evenodd: bool,
-        path: Sequence[PathSegment],
+            self,
+            gstate: PDFGraphicState,
+            stroke: bool,
+            fill: bool,
+            evenodd: bool,
+            path: Sequence[PathSegment],
     ) -> None:
         """Paint paths described in section 4.4 of the PDF reference manual"""
         shape = "".join(x[0] for x in path)
@@ -112,7 +112,7 @@ class PDFLayoutAnalyzer(PDFTextDevice):
         if shape.count("m") > 1:
             # recurse if there are multiple m's in this shape
             for m in re.finditer(r"m[^m]+", shape):
-                subpath = path[m.start(0) : m.end(0)]
+                subpath = path[m.start(0): m.end(0)]
                 self.paint_path(gstate, stroke, fill, evenodd, subpath)
 
         else:
@@ -123,8 +123,14 @@ class PDFLayoutAnalyzer(PDFTextDevice):
             # And, per Section 4.4's Table 4.9, all other path commands place
             # their point-position in their final two arguments. (Any preceding
             # arguments represent control points on Bézier curves.)
+            def __get_first_point(path: list) -> tuple:
+                for p in path:
+                    if len(p) >= 2:
+                        return p[-2:]
+                raise ValueError("No first point found")
+
             raw_pts = [
-                cast(Point, p[-2:] if p[0] != "h" else path[0][-2:]) for p in path
+                cast(Point, p[-2:] if p[0] != "h" else __get_first_point(path)) for p in path
             ]
             pts = [apply_matrix_pt(self.ctm, pt) for pt in raw_pts]
 
@@ -150,8 +156,8 @@ class PDFLayoutAnalyzer(PDFTextDevice):
 
                 is_closed_loop = pts[0] == pts[4]
                 has_square_coordinates = (
-                    x0 == x1 and y1 == y2 and x2 == x3 and y3 == y0
-                ) or (y0 == y1 and x1 == x2 and y2 == y3 and x3 == x0)
+                                                 x0 == x1 and y1 == y2 and x2 == x3 and y3 == y0
+                                         ) or (y0 == y1 and x1 == x2 and y2 == y3 and x3 == x0)
                 if is_closed_loop and has_square_coordinates:
                     rect = LTRect(
                         gstate.linewidth,
@@ -188,15 +194,15 @@ class PDFLayoutAnalyzer(PDFTextDevice):
                 self.cur_item.add(curve)
 
     def render_char(
-        self,
-        matrix: Matrix,
-        font: PDFFont,
-        fontsize: float,
-        scaling: float,
-        rise: float,
-        cid: int,
-        ncs: PDFColorSpace,
-        graphicstate: PDFGraphicState,
+            self,
+            matrix: Matrix,
+            font: PDFFont,
+            fontsize: float,
+            scaling: float,
+            rise: float,
+            cid: int,
+            ncs: PDFColorSpace,
+            graphicstate: PDFGraphicState,
     ) -> float:
         try:
             text = font.to_unichr(cid)
@@ -230,10 +236,10 @@ class PDFLayoutAnalyzer(PDFTextDevice):
 
 class PDFPageAggregator(PDFLayoutAnalyzer):
     def __init__(
-        self,
-        rsrcmgr: PDFResourceManager,
-        pageno: int = 1,
-        laparams: Optional[LAParams] = None,
+            self,
+            rsrcmgr: PDFResourceManager,
+            pageno: int = 1,
+            laparams: Optional[LAParams] = None,
     ) -> None:
         PDFLayoutAnalyzer.__init__(self, rsrcmgr, pageno=pageno, laparams=laparams)
         self.result: Optional[LTPage] = None
@@ -252,12 +258,12 @@ IOType = TypeVar("IOType", TextIO, BinaryIO, AnyIO)
 
 class PDFConverter(PDFLayoutAnalyzer, Generic[IOType]):
     def __init__(
-        self,
-        rsrcmgr: PDFResourceManager,
-        outfp: IOType,
-        codec: str = "utf-8",
-        pageno: int = 1,
-        laparams: Optional[LAParams] = None,
+            self,
+            rsrcmgr: PDFResourceManager,
+            outfp: IOType,
+            codec: str = "utf-8",
+            pageno: int = 1,
+            laparams: Optional[LAParams] = None,
     ) -> None:
         PDFLayoutAnalyzer.__init__(self, rsrcmgr, pageno=pageno, laparams=laparams)
         self.outfp: IOType = outfp
@@ -284,14 +290,14 @@ class PDFConverter(PDFLayoutAnalyzer, Generic[IOType]):
 
 class TextConverter(PDFConverter[AnyIO]):
     def __init__(
-        self,
-        rsrcmgr: PDFResourceManager,
-        outfp: AnyIO,
-        codec: str = "utf-8",
-        pageno: int = 1,
-        laparams: Optional[LAParams] = None,
-        showpageno: bool = False,
-        imagewriter: Optional[ImageWriter] = None,
+            self,
+            rsrcmgr: PDFResourceManager,
+            outfp: AnyIO,
+            codec: str = "utf-8",
+            pageno: int = 1,
+            laparams: Optional[LAParams] = None,
+            showpageno: bool = False,
+            imagewriter: Optional[ImageWriter] = None,
     ) -> None:
         super().__init__(rsrcmgr, outfp, codec=codec, pageno=pageno, laparams=laparams)
         self.showpageno = showpageno
@@ -332,12 +338,12 @@ class TextConverter(PDFConverter[AnyIO]):
         return
 
     def paint_path(
-        self,
-        gstate: PDFGraphicState,
-        stroke: bool,
-        fill: bool,
-        evenodd: bool,
-        path: Sequence[PathSegment],
+            self,
+            gstate: PDFGraphicState,
+            stroke: bool,
+            fill: bool,
+            evenodd: bool,
+            path: Sequence[PathSegment],
     ) -> None:
         return
 
@@ -358,21 +364,21 @@ class HTMLConverter(PDFConverter[AnyIO]):
     }
 
     def __init__(
-        self,
-        rsrcmgr: PDFResourceManager,
-        outfp: AnyIO,
-        codec: str = "utf-8",
-        pageno: int = 1,
-        laparams: Optional[LAParams] = None,
-        scale: float = 1,
-        fontscale: float = 1.0,
-        layoutmode: str = "normal",
-        showpageno: bool = True,
-        pagemargin: int = 50,
-        imagewriter: Optional[ImageWriter] = None,
-        debug: int = 0,
-        rect_colors: Optional[Dict[str, str]] = None,
-        text_colors: Optional[Dict[str, str]] = None,
+            self,
+            rsrcmgr: PDFResourceManager,
+            outfp: AnyIO,
+            codec: str = "utf-8",
+            pageno: int = 1,
+            laparams: Optional[LAParams] = None,
+            scale: float = 1,
+            fontscale: float = 1.0,
+            layoutmode: str = "normal",
+            showpageno: bool = True,
+            pagemargin: int = 50,
+            imagewriter: Optional[ImageWriter] = None,
+            debug: int = 0,
+            rect_colors: Optional[Dict[str, str]] = None,
+            text_colors: Optional[Dict[str, str]] = None,
     ) -> None:
         PDFConverter.__init__(
             self, rsrcmgr, outfp, codec=codec, pageno=pageno, laparams=laparams
@@ -415,8 +421,8 @@ class HTMLConverter(PDFConverter[AnyIO]):
         self.write("<html><head>\n")
         if self.codec:
             s = (
-                '<meta http-equiv="Content-Type" content="text/html; '
-                'charset=%s">\n' % self.codec
+                    '<meta http-equiv="Content-Type" content="text/html; '
+                    'charset=%s">\n' % self.codec
             )
         else:
             s = '<meta http-equiv="Content-Type" content="text/html">\n'
@@ -440,21 +446,21 @@ class HTMLConverter(PDFConverter[AnyIO]):
         return
 
     def place_rect(
-        self, color: str, borderwidth: int, x: float, y: float, w: float, h: float
+            self, color: str, borderwidth: int, x: float, y: float, w: float, h: float
     ) -> None:
         color2 = self.rect_colors.get(color)
         if color2 is not None:
             s = (
-                '<span style="position:absolute; border: %s %dpx solid; '
-                'left:%dpx; top:%dpx; width:%dpx; height:%dpx;"></span>\n'
-                % (
-                    color2,
-                    borderwidth,
-                    x * self.scale,
-                    (self._yoffset - y) * self.scale,
-                    w * self.scale,
-                    h * self.scale,
-                )
+                    '<span style="position:absolute; border: %s %dpx solid; '
+                    'left:%dpx; top:%dpx; width:%dpx; height:%dpx;"></span>\n'
+                    % (
+                        color2,
+                        borderwidth,
+                        x * self.scale,
+                        (self._yoffset - y) * self.scale,
+                        w * self.scale,
+                        h * self.scale,
+                    )
             )
             self.write(s)
         return
@@ -464,39 +470,39 @@ class HTMLConverter(PDFConverter[AnyIO]):
         return
 
     def place_image(
-        self, item: LTImage, borderwidth: int, x: float, y: float, w: float, h: float
+            self, item: LTImage, borderwidth: int, x: float, y: float, w: float, h: float
     ) -> None:
         if self.imagewriter is not None:
             name = self.imagewriter.export_image(item)
             s = (
-                '<img src="%s" border="%d" style="position:absolute; '
-                'left:%dpx; top:%dpx;" width="%d" height="%d" />\n'
-                % (
-                    enc(name),
-                    borderwidth,
-                    x * self.scale,
-                    (self._yoffset - y) * self.scale,
-                    w * self.scale,
-                    h * self.scale,
-                )
+                    '<img src="%s" border="%d" style="position:absolute; '
+                    'left:%dpx; top:%dpx;" width="%d" height="%d" />\n'
+                    % (
+                        enc(name),
+                        borderwidth,
+                        x * self.scale,
+                        (self._yoffset - y) * self.scale,
+                        w * self.scale,
+                        h * self.scale,
+                    )
             )
             self.write(s)
         return
 
     def place_text(
-        self, color: str, text: str, x: float, y: float, size: float
+            self, color: str, text: str, x: float, y: float, size: float
     ) -> None:
         color2 = self.text_colors.get(color)
         if color2 is not None:
             s = (
-                '<span style="position:absolute; color:%s; left:%dpx; '
-                'top:%dpx; font-size:%dpx;">'
-                % (
-                    color2,
-                    x * self.scale,
-                    (self._yoffset - y) * self.scale,
-                    size * self.scale * self.fontscale,
-                )
+                    '<span style="position:absolute; color:%s; left:%dpx; '
+                    'top:%dpx; font-size:%dpx;">'
+                    % (
+                        color2,
+                        x * self.scale,
+                        (self._yoffset - y) * self.scale,
+                        size * self.scale * self.fontscale,
+                    )
             )
             self.write(s)
             self.write_text(text)
@@ -504,30 +510,30 @@ class HTMLConverter(PDFConverter[AnyIO]):
         return
 
     def begin_div(
-        self,
-        color: str,
-        borderwidth: int,
-        x: float,
-        y: float,
-        w: float,
-        h: float,
-        writing_mode: str = "False",
+            self,
+            color: str,
+            borderwidth: int,
+            x: float,
+            y: float,
+            w: float,
+            h: float,
+            writing_mode: str = "False",
     ) -> None:
         self._fontstack.append(self._font)
         self._font = None
         s = (
-            '<div style="position:absolute; border: %s %dpx solid; '
-            "writing-mode:%s; left:%dpx; top:%dpx; width:%dpx; "
-            'height:%dpx;">'
-            % (
-                color,
-                borderwidth,
-                writing_mode,
-                x * self.scale,
-                (self._yoffset - y) * self.scale,
-                w * self.scale,
-                h * self.scale,
-            )
+                '<div style="position:absolute; border: %s %dpx solid; '
+                "writing-mode:%s; left:%dpx; top:%dpx; width:%dpx; "
+                'height:%dpx;">'
+                % (
+                    color,
+                    borderwidth,
+                    writing_mode,
+                    x * self.scale,
+                    (self._yoffset - y) * self.scale,
+                    w * self.scale,
+                    h * self.scale,
+                )
         )
         self.write(s)
         return
@@ -648,18 +654,17 @@ class HTMLConverter(PDFConverter[AnyIO]):
 
 
 class XMLConverter(PDFConverter[AnyIO]):
-
     CONTROL = re.compile("[\x00-\x08\x0b-\x0c\x0e-\x1f]")
 
     def __init__(
-        self,
-        rsrcmgr: PDFResourceManager,
-        outfp: AnyIO,
-        codec: str = "utf-8",
-        pageno: int = 1,
-        laparams: Optional[LAParams] = None,
-        imagewriter: Optional[ImageWriter] = None,
-        stripcontrol: bool = False,
+            self,
+            rsrcmgr: PDFResourceManager,
+            outfp: AnyIO,
+            codec: str = "utf-8",
+            pageno: int = 1,
+            laparams: Optional[LAParams] = None,
+            imagewriter: Optional[ImageWriter] = None,
+            stripcontrol: bool = False,
     ) -> None:
         PDFConverter.__init__(
             self, rsrcmgr, outfp, codec=codec, pageno=pageno, laparams=laparams
@@ -775,15 +780,15 @@ class XMLConverter(PDFConverter[AnyIO]):
                 self.write("</textbox>\n")
             elif isinstance(item, LTChar):
                 s = (
-                    '<text font="%s" bbox="%s" colourspace="%s" '
-                    'ncolour="%s" size="%.3f">'
-                    % (
-                        enc(item.fontname),
-                        bbox2str(item.bbox),
-                        item.ncs.name,
-                        item.graphicstate.ncolor,
-                        item.size,
-                    )
+                        '<text font="%s" bbox="%s" colourspace="%s" '
+                        'ncolour="%s" size="%.3f">'
+                        % (
+                            enc(item.fontname),
+                            bbox2str(item.bbox),
+                            item.ncs.name,
+                            item.graphicstate.ncolor,
+                            item.size,
+                        )
                 )
                 self.write(s)
                 self.write_text(item.get_text())

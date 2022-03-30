@@ -3,6 +3,7 @@ Miscellaneous Routines.
 """
 import io
 import pathlib
+import re
 import string
 import struct
 from html import escape
@@ -799,3 +800,28 @@ def format_int_alpha(value: int) -> str:
 
     result.reverse()
     return "".join(result)
+
+
+def get_cmap_dif(raw_data):
+    """Check whether the K-V differences in the CMap table are consistent"""
+
+    raw_data_decode = raw_data.decode(errors="ignore")
+    start = raw_data_decode.find("beginbfchar")
+    end = raw_data_decode.find("endbfchar", start) if start >= 0 else -1
+    if 0 <= start < end:
+        cmaps = raw_data_decode[start:end].split('\n')
+        # The actual CMAP is less than two
+        if len(cmaps) < 4:
+            return None
+        dif = None
+        for cmap in cmaps[1:-1]:
+            cmap_values = list(re.finditer(r"<\s?((?:\d|[a-f])+)\s?>", cmap, re.I))
+            # not standard CMAP
+            if len(cmap_values) < 2:
+                return None
+            _dif = int(cmap_values[-1].group(1), 16) - int(cmap_values[0].group(1), 16)
+            if dif is None:
+                dif = _dif
+            elif dif != _dif:
+                return None
+        return dif
