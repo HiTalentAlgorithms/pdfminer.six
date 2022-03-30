@@ -372,9 +372,9 @@ class LTChar(LTComponent, LTText):
             bbox_upper_right = (-vx + fontsize, vy + rise)
         else:
             # horizontal
-            descent = font.get_descent() * fontsize
-            bbox_lower_left = (0, descent + rise)
-            bbox_upper_right = (self.adv, descent + rise + fontsize)
+            # descent = font.get_descent() * fontsize
+            bbox_lower_left = (0, 0)
+            bbox_upper_right = (self.adv, fontsize)
         (a, b, c, d, e, f) = self.matrix
         self.upright = 0 < a * d * scaling and b * c <= 0
         (x0, y0) = apply_matrix_pt(self.matrix, bbox_lower_left)
