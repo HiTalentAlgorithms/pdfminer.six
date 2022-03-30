@@ -4,6 +4,12 @@ All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20220329]
+
+### Fixed
+
+- Fixed Bugs: Fixed bug of getting right matrix of LTChar in `pdfminer/layout.py:375`
+
 ## [20220320]
 
 ### Fixed
