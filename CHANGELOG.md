@@ -4,6 +4,12 @@ All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20220426]
+
+### Fixed
+
+- Merge master breach
+
 ## [20220329]
 
 ### Fixed
@@ -16,19 +22,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Fixed Bugs: Fixed bug with TypeError in `pdfminer/pdftypes.py:376`
 
+## [20220319]
+
+### Added
+
+- Added features: Add more than one `LTAnno` at a time
+
 ## [20220318]
 
 ### Fixed
 
 - Fixed Bugs: Fix font with CIDFont name and cmap empty,
-    - Fixed cmap without `endbfchar`
+  - Fixed cmap without `endbfchar`
 
 ## [20220317]
 
 ### Fixed
 
 - Fixed Bugs: When `paint_path()` is called with a `path` that has `h` command but length is 0, it will crash.
-    - Depends on Section8.5.1 in PDF Reference Document V1.7
+  - Depends on Section8.5.1 in PDF Reference Document V1.7
 
 ## [20220314]
 
@@ -38,9 +50,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [20220308]
 
+### Fixed
+
+- `IndexError` when handling invalid bfrange code map in CMap ([#731](https://github.com/pdfminer/pdfminer.six/pull/731))
+- `TypeError` in lzw.py when `self.table` is not set ([#732](https://github.com/pdfminer/pdfminer.six/pull/732))
+- `TypeError` in encodingdb.py when name of unicode is not str ([#733](https://github.com/pdfminer/pdfminer.six/pull/733))
+- `TypeError` in HTMLConverter when using a bytes fontname ([#734](https://github.com/pdfminer/pdfminer.six/pull/734))
+
 ### Added
 
-- Added features: Add more than one `LTAnno` at a time
+- Exporting images without any specific encoding ([#737](https://github.com/pdfminer/pdfminer.six/pull/737))
+
+### Changed
+
+- Using charset-normalizer instead of chardet for less restrictive license ([#744](https://github.com/pdfminer/pdfminer.six/pull/744))
 
 ## [20220304]
 
