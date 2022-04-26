@@ -1,7 +1,5 @@
-cryptography
-
-[:python_version > "3.0"]
-chardet
+charset-normalizer~=2.0.0
+cryptography~=36.0.0
 
 [dev]
 pytest
@@ -12,3 +10,6 @@ mypy==0.931
 [docs]
 sphinx
 sphinx-argparse
+
+[image]
+Pillow
