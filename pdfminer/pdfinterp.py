@@ -565,7 +565,10 @@ class PDFPageInterpreter:
 
     def do_S(self) -> None:
         """Stroke path"""
-        self.device.paint_path(self.graphicstate, True, False, False, self.curpath)
+        try:
+            self.device.paint_path(self.graphicstate, True, False, False, self.curpath)
+        except ValueError as e:
+            pass
         self.curpath = []
         return
 
