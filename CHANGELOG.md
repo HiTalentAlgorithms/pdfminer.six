@@ -12,7 +12,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `TypeError` when getting default width of font ([#720](https://github.com/pdfminer/pdfminer.six/issues/720))
 - Install typing-extensions on Python 3.6 and 3.7 ([#775](https://github.com/pdfminer/pdfminer.six/pull/775))
 - `TypeError` in cmapdb.py when parsing null characters ([#768](https://github.com/pdfminer/pdfminer.six/pull/768))
-- `ValueError` when trying to convert `str` to `int` in
+- `ValueError` when trying to convert `str` to `int` in `encodingdb.name2unicode`
 ### Deprecated
 
 - Usage of `if __name__ == "__main__"` where it was only intended for testing purposes ([#756](https://github.com/pdfminer/pdfminer.six/pull/756))
