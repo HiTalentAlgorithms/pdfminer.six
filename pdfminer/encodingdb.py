@@ -46,7 +46,7 @@ def name2unicode(name: str) -> str:
 
             if HEXADECIMAL.match(name_without_uni) and len(name_without_uni) % 4 == 0:
                 unicode_digits = [
-                    int(name_without_uni[i : i + 4], base=16)
+                    int(name_without_uni[i: i + 4], base=16)
                     for i in range(0, len(name_without_uni), 4)
                 ]
                 for digit in unicode_digits:
@@ -56,9 +56,11 @@ def name2unicode(name: str) -> str:
 
         elif name.startswith("u"):
             name_without_u = name.strip("u")
-
             if HEXADECIMAL.match(name_without_u) and 4 <= len(name_without_u) <= 6:
-                unicode_digit = int(name_without_u, base=16)
+                try:
+                    unicode_digit = int(name_without_u, base=16)
+                except ValueError as e:
+                    return f'(cid:{name})'
                 raise_key_error_for_invalid_unicode(unicode_digit)
                 return chr(unicode_digit)
 
@@ -82,7 +84,6 @@ def raise_key_error_for_invalid_unicode(unicode_digit: int) -> None:
 
 
 class EncodingDB:
-
     std2unicode: Dict[int, str] = {}
     mac2unicode: Dict[int, str] = {}
     win2unicode: Dict[int, str] = {}
@@ -107,7 +108,7 @@ class EncodingDB:
 
     @classmethod
     def get_encoding(
-        cls, name: str, diff: Optional[Iterable[object]] = None
+            cls, name: str, diff: Optional[Iterable[object]] = None
     ) -> Dict[int, str]:
         cid2unicode = cls.encodings.get(name, cls.std2unicode)
         if diff:
