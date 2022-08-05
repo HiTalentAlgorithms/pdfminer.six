@@ -3,7 +3,12 @@
 All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
 ## [20220805]
+
+### Added
+
+- Add `replace_ligature` to `LTChar`
 
 ### Fixed
 
@@ -13,6 +18,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Install typing-extensions on Python 3.6 and 3.7 ([#775](https://github.com/pdfminer/pdfminer.six/pull/775))
 - `TypeError` in cmapdb.py when parsing null characters ([#768](https://github.com/pdfminer/pdfminer.six/pull/768))
 - `ValueError` when trying to convert `str` to `int` in `encodingdb.name2unicode`
+
 ### Deprecated
 
 - Usage of `if __name__ == "__main__"` where it was only intended for testing purposes ([#756](https://github.com/pdfminer/pdfminer.six/pull/756))
@@ -56,14 +62,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 ### Fixed
 
 - Fixed Bugs: Fix font with CIDFont name and cmap empty,
-  - Fixed cmap without `endbfchar`
+    - Fixed cmap without `endbfchar`
 
 ## [20220317]
 
 ### Fixed
 
 - Fixed Bugs: When `paint_path()` is called with a `path` that has `h` command but length is 0, it will crash.
-  - Depends on Section8.5.1 in PDF Reference Document V1.7
+    - Depends on Section8.5.1 in PDF Reference Document V1.7
 
 ## [20220314]
 

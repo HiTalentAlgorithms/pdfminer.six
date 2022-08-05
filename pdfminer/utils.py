@@ -828,3 +828,12 @@ def get_cmap_dif(raw_data):
             elif dif != _dif:
                 return None
         return dif
+
+
+LIGATURE_DICT = {"ᵫ": "ue", "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi", "ﬄ": "ffl", "ﬅ": "ft"}
+
+
+def replace_ligature(text: str) -> str:
+    for k, v in LIGATURE_DICT.items():
+        text = text.replace(k, v)
+    return text

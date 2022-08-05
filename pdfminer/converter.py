@@ -45,6 +45,7 @@ from .utils import apply_matrix_pt
 from .utils import bbox2str
 from .utils import enc
 from .utils import mult_matrix
+from .utils import replace_ligature
 
 log = logging.getLogger(__name__)
 
@@ -218,6 +219,7 @@ class PDFLayoutAnalyzer(PDFTextDevice):
             assert isinstance(text, str), str(type(text))
         except PDFUnicodeNotDefined:
             text = self.handle_undefined_char(font, cid)
+        text = replace_ligature(text)
         textwidth = font.char_width(cid)
         textdisp = font.char_disp(cid)
         item = LTChar(
