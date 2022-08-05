@@ -866,6 +866,7 @@ class PDFFont:
             self.default_width = num_value(descriptor.get("MissingWidth", 0))
         else:
             self.default_width = default_width
+        self.default_width = resolve1(self.default_width)
         self.leading = num_value(descriptor.get("Leading", 0))
         self.bbox = cast(
             Rect, list_value(resolve_all(descriptor.get("FontBBox", (0, 0, 0, 0))))
@@ -1204,6 +1205,15 @@ class PDFCIDFont(PDFFont):
 
 
 def main(argv: List[str]) -> None:
+    from warnings import warn
+
+    warn(
+        "The function main() from pdffont.py will be removed in 2023. It was probably "
+        "introduced for testing purposes a long time ago, and no longer relevant. "
+        "Feel free to create a GitHub issue if you disagree.",
+        DeprecationWarning,
+    )
+
     for fname in argv[1:]:
         fp = open(fname, "rb")
         font = CFFFont(fname, fp)
