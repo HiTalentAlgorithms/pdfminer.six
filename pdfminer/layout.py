@@ -485,8 +485,13 @@ class LTTextLine(LTTextContainer[TextLineElement]):
     def __init__(self, word_margin: float) -> None:
         super().__init__()
         self.word_margin = word_margin
-        self._avg_char_width = None
-        self._avg_char_height = None
+
+        self._sum_char_width = 0
+        self._sum_char_height = 0
+        self._avg_space_width = None
+        self._avg_space_height = None
+        self._sum_char_distance = 0
+
         return
 
     def __repr__(self) -> str:
@@ -519,22 +524,24 @@ class LTTextLineHorizontal(LTTextLine):
 
     # Incompatible override: we take an LTComponent (with bounding box), but
     # LTContainer only considers LTItem (no bounding box).
+    # if now space width > max(0.2 * char width, 1.5 * agv_space_width), then add LTAno
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
-        length_objs = len(self._objs)
-        if self._avg_char_width is None:
-            temp_avg = obj.width
-        else:
-            temp_avg = self._avg_char_width * (length_objs / (length_objs + 1)) + obj.width / (length_objs + 1)
-        if isinstance(obj, LTChar) and self.word_margin and self._objs:
-            margin = self.word_margin * temp_avg
-            if self._x1 < obj.x0 - margin:
-                LTContainer.add(self, LTAnno(" "))
-                for _ in range(int(round(((obj.x0 - self._x1) - margin) / temp_avg, 1))):
+        length_objs = len([i for i in self._objs if isinstance(i, LTChar)])
+        if length_objs > 0:  # 0, 1
+            now_char_distance = max(round(obj.x0 - self._x1, 2), 0)
+            agv_char_width = self._sum_char_width / length_objs
+            if length_objs == 1:
+                if space_width := agv_char_width * self.word_margin:
+                    for _ in range(int(now_char_distance // space_width)):  # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
+                        LTContainer.add(self, LTAnno(" "))
+            elif now_char_distance > (max_char_distance := max(0.2 * agv_char_width, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
+                space_count = int(now_char_distance // max(max_char_distance, agv_char_width * self.word_margin))
+                for _ in range(space_count if space_count > 0 else 1):  # add at least one LTAnno
                     LTContainer.add(self, LTAnno(" "))
-                temp_avg = temp_avg * ((length_objs + 1) / length_objs)
+            self._sum_char_distance += now_char_distance
+        self._sum_char_width += obj.width
         self._x1 = obj.x1
         super().add(obj)
-        self._avg_char_width = temp_avg
         return
 
     def find_neighbors(
@@ -597,21 +604,23 @@ class LTTextLineVertical(LTTextLine):
     # Incompatible override: we take an LTComponent (with bounding box), but
     # LTContainer only considers LTItem (no bounding box).
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
-        length_objs = len(self._objs)
-        if self._avg_char_height is None:
-            temp_avg = obj.width
-        else:
-            temp_avg = self._avg_char_height * (length_objs / (length_objs + 1)) + obj.height / (length_objs + 1)
-        if isinstance(obj, LTChar) and self.word_margin and self._objs:
-            margin = self.word_margin * temp_avg
-            if obj.y1 + margin < self._y0:
-                LTContainer.add(self, LTAnno(" "))
-                for _ in range(int(round(((self._y0 - obj.y1) - margin) / temp_avg, 1))):
+        length_objs = len([i for i in self._objs if isinstance(i, LTChar)])
+        if length_objs > 0:  # 0, 1
+            now_char_distance = max(round(obj.y1 - self._y0, 2), 0)
+            agv_char_height = self._sum_char_height / length_objs
+            if length_objs == 1:
+                if space_height := agv_char_height * self.word_margin:
+                    for _ in range(int(now_char_distance // space_height)):  # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
+                        LTContainer.add(self, LTAnno(" "))
+            elif now_char_distance > (max_char_distance := max(0.2 * agv_char_height, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
+                space_count = int(now_char_distance // max(max_char_distance, agv_char_height * self.word_margin))
+                for _ in range(space_count if space_count > 0 else 1):  # add at least one LTAnno
                     LTContainer.add(self, LTAnno(" "))
-                temp_avg = temp_avg * (length_objs + 1 / length_objs)
+            self._sum_char_distance += now_char_distance
+
+        self._sum_char_height += obj.height
         self._y0 = obj.y0
         super().add(obj)
-        self._avg_char_height = temp_avg
         return
 
     def find_neighbors(
