@@ -4,6 +4,13 @@ All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20220808]
+
+### Fixed
+
+- Skip `TypeError` in `nunpack` in utils.py, when raise error: `invalid length of 'xxx'`
+- Reformat function `LTTextLine.add(self, obj: LTComponent)`, modify space width/height
+
 ## [20220805]
 
 ### Added
