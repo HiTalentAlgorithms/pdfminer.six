@@ -40,6 +40,7 @@ pdfminer/psparser.py
 pdfminer/py.typed
 pdfminer/runlength.py
 pdfminer/settings.py
+pdfminer/unofficial_unicode.py
 pdfminer/utils.py
 pdfminer.hitalent.egg-info/PKG-INFO
 pdfminer.hitalent.egg-info/SOURCES.txt

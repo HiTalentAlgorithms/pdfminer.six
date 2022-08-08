@@ -40,6 +40,7 @@ from .pdffont import PDFUnicodeNotDefined
 from .pdfinterp import PDFGraphicState, PDFResourceManager
 from .pdfpage import PDFPage
 from .pdftypes import PDFStream
+from .unofficial_unicode import format_string_remove_unofficial_char
 from .utils import AnyIO, Point, Matrix, Rect, PathSegment, make_compat_str
 from .utils import apply_matrix_pt
 from .utils import bbox2str
@@ -219,7 +220,7 @@ class PDFLayoutAnalyzer(PDFTextDevice):
             assert isinstance(text, str), str(type(text))
         except PDFUnicodeNotDefined:
             text = self.handle_undefined_char(font, cid)
-        text = replace_ligature(text)
+        text = replace_ligature(format_string_remove_unofficial_char(text))
         textwidth = font.char_width(cid)
         textdisp = font.char_disp(cid)
         item = LTChar(
