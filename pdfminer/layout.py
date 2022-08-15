@@ -516,6 +516,10 @@ class LTTextLine(LTTextContainer[TextLineElement]):
     def is_empty(self) -> bool:
         return super().is_empty() or self.get_text().isspace()
 
+    def extend(self, objs: Iterable[LTItemT]) -> None:
+        self._objs.extend(objs)
+        return
+
 
 class LTTextLineHorizontal(LTTextLine):
     def __init__(self, word_margin: float) -> None:
@@ -527,19 +531,19 @@ class LTTextLineHorizontal(LTTextLine):
     # LTContainer only considers LTItem (no bounding box).
     # if now space width > max(0.2 * char width, 1.5 * agv_space_width), then add LTAno
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
-        length_objs = len([i for i in self._objs if isinstance(i, LTChar)])
+        length_objs = sum(1 for i in self._objs if isinstance(i, LTChar))
         if length_objs > 0:  # 0, 1
             now_char_distance = max(round(obj.x0 - self._x1, 2), 0)
             avg_char_width = self._sum_char_width / length_objs
             if length_objs == 1:
                 if space_width := avg_char_width * self.word_margin:
                     # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
-                    LTContainer.extend(self,objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_width))])
+                    self.extend(LTAnno(" ") for _ in range(int(now_char_distance // space_width)))
             elif now_char_distance > (max_char_distance := max(0.2 * avg_char_width, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
                 # if now_char_distance > max_char_distance, there are must have a space
                 # but space count depend on max(avg_char_width, max_char_distance), add at least one LTAnno
                 space_count = now_char_distance / max(avg_char_width, max_char_distance)
-                LTContainer.extend(self,objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
+                self.extend(LTAnno(" ") for _ in range(math.ceil(space_count)))
             self._sum_char_distance += now_char_distance
         self._sum_char_width += obj.width
         self._x1 = obj.x1
@@ -606,19 +610,18 @@ class LTTextLineVertical(LTTextLine):
     # Incompatible override: we take an LTComponent (with bounding box), but
     # LTContainer only considers LTItem (no bounding box).
     def add(self, obj: LTComponent) -> None:  # type: ignore[override]
-        length_objs = len([i for i in self._objs if isinstance(i, LTChar)])
+        length_objs = sum(1 for i in self._objs if isinstance(i, LTChar))
         if length_objs > 0:  # 0, 1
             now_char_distance = max(round(obj.y1 - self._y0, 2), 0)
             avg_char_height = self._sum_char_height / length_objs
             if length_objs == 1:
                 if space_height := avg_char_height * self.word_margin:
-                    LTContainer.extend(self, objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_height))])
+                    self.extend(LTAnno(" ") for _ in range(int(now_char_distance // space_height)))
             elif now_char_distance > (max_char_distance := max(0.2 * avg_char_height, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
                 # if now_char_distance > max_char_distance, there are must have a space
                 # but space count depend on max(avg_char_width, max_char_distance), add at least one LTAnno
                 space_count = now_char_distance / max(max_char_distance, avg_char_height)
-                LTContainer.extend(self, objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
-
+                self.extend(LTAnno(" ") for _ in range(math.ceil(space_count)))
             self._sum_char_distance += now_char_distance
 
         self._sum_char_height += obj.height
@@ -637,7 +640,7 @@ class LTTextLineVertical(LTTextLine):
         will be the same width as self, and also either upper-, lower-, or
         centrally-aligned.
         """
-        d = ratio * self.width
+        d = ratio * self.widthte
         objs = plane.find((self.x0 - d, self.y0, self.x1 + d, self.y1))
         return [
             obj
