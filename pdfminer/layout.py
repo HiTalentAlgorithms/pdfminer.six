@@ -534,12 +534,12 @@ class LTTextLineHorizontal(LTTextLine):
             if length_objs == 1:
                 if space_width := avg_char_width * self.word_margin:
                     # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
-                    self.extend(objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_width))])
+                    LTContainer.extend(self,objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_width))])
             elif now_char_distance > (max_char_distance := max(0.2 * avg_char_width, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
                 # if now_char_distance > max_char_distance, there are must have a space
                 # but space count depend on max(avg_char_width, max_char_distance), add at least one LTAnno
                 space_count = now_char_distance / max(avg_char_width, max_char_distance)
-                self.extend(objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
+                LTContainer.extend(self,objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
             self._sum_char_distance += now_char_distance
         self._sum_char_width += obj.width
         self._x1 = obj.x1
@@ -612,12 +612,12 @@ class LTTextLineVertical(LTTextLine):
             avg_char_height = self._sum_char_height / length_objs
             if length_objs == 1:
                 if space_height := avg_char_height * self.word_margin:
-                    self.extend(objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_height))])
+                    LTContainer.extend(self, objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_height))])
             elif now_char_distance > (max_char_distance := max(0.2 * avg_char_height, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
                 # if now_char_distance > max_char_distance, there are must have a space
                 # but space count depend on max(avg_char_width, max_char_distance), add at least one LTAnno
                 space_count = now_char_distance / max(max_char_distance, avg_char_height)
-                self.extend(objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
+                LTContainer.extend(self, objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
 
             self._sum_char_distance += now_char_distance
 
