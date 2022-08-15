@@ -4,6 +4,18 @@ All notable changes in pdfminer.six will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [20220815]
+
+### Fixed
+
+- Updated the logic of `LTTextLine.add()`.
+
+## [20220811]
+
+### Fixed
+
+- Updated the logic of get space width.
+
 ## [20220808]
 
 ### Fixed

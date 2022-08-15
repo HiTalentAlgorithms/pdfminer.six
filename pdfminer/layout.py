@@ -1,5 +1,6 @@
 import heapq
 import logging
+import math
 from typing import (
     Dict,
     Generic,
@@ -529,15 +530,16 @@ class LTTextLineHorizontal(LTTextLine):
         length_objs = len([i for i in self._objs if isinstance(i, LTChar)])
         if length_objs > 0:  # 0, 1
             now_char_distance = max(round(obj.x0 - self._x1, 2), 0)
-            agv_char_width = self._sum_char_width / length_objs
+            avg_char_width = self._sum_char_width / length_objs
             if length_objs == 1:
-                if space_width := agv_char_width * self.word_margin:
-                    for _ in range(int(now_char_distance // space_width)):  # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
-                        LTContainer.add(self, LTAnno(" "))
-            elif now_char_distance > (max_char_distance := max(0.2 * agv_char_width, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
-                space_count = int(now_char_distance // max(max_char_distance, agv_char_width * self.word_margin))
-                for _ in range(space_count if space_count > 0 else 1):  # add at least one LTAnno
-                    LTContainer.add(self, LTAnno(" "))
+                if space_width := avg_char_width * self.word_margin:
+                    # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
+                    self.extend(objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_width))])
+            elif now_char_distance > (max_char_distance := max(0.2 * avg_char_width, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
+                # if now_char_distance > max_char_distance, there are must have a space
+                # but space count depend on max(avg_char_width, max_char_distance), add at least one LTAnno
+                space_count = now_char_distance / max(avg_char_width, max_char_distance)
+                self.extend(objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
             self._sum_char_distance += now_char_distance
         self._sum_char_width += obj.width
         self._x1 = obj.x1
@@ -607,15 +609,16 @@ class LTTextLineVertical(LTTextLine):
         length_objs = len([i for i in self._objs if isinstance(i, LTChar)])
         if length_objs > 0:  # 0, 1
             now_char_distance = max(round(obj.y1 - self._y0, 2), 0)
-            agv_char_height = self._sum_char_height / length_objs
+            avg_char_height = self._sum_char_height / length_objs
             if length_objs == 1:
-                if space_height := agv_char_height * self.word_margin:
-                    for _ in range(int(now_char_distance // space_height)):  # if now_char_distance > self._avg_space_width, add  LTAnno(" ")
-                        LTContainer.add(self, LTAnno(" "))
-            elif now_char_distance > (max_char_distance := max(0.2 * agv_char_height, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
-                space_count = int(now_char_distance // max(max_char_distance, agv_char_height * self.word_margin))
-                for _ in range(space_count if space_count > 0 else 1):  # add at least one LTAnno
-                    LTContainer.add(self, LTAnno(" "))
+                if space_height := avg_char_height * self.word_margin:
+                    self.extend(objs=[LTAnno(" ") for _ in range(int(now_char_distance // space_height))])
+            elif now_char_distance > (max_char_distance := max(0.2 * avg_char_height, 1.5 * self._sum_char_distance / (length_objs - 1))):  # max(0.2 * char width, 1.5 * agv_space_width),
+                # if now_char_distance > max_char_distance, there are must have a space
+                # but space count depend on max(avg_char_width, max_char_distance), add at least one LTAnno
+                space_count = now_char_distance / max(max_char_distance, avg_char_height)
+                self.extend(objs=[LTAnno(" ") for _ in range(math.ceil(space_count))])
+
             self._sum_char_distance += now_char_distance
 
         self._sum_char_height += obj.height
