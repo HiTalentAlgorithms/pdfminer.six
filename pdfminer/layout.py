@@ -640,7 +640,7 @@ class LTTextLineVertical(LTTextLine):
         will be the same width as self, and also either upper-, lower-, or
         centrally-aligned.
         """
-        d = ratio * self.widthte
+        d = ratio * self.width
         objs = plane.find((self.x0 - d, self.y0, self.x1 + d, self.y1))
         return [
             obj

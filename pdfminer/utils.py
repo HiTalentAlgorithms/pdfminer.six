@@ -831,6 +831,11 @@ def get_cmap_dif(raw_data):
 
 
 LIGATURE_DICT = {"ᵫ": "ue", "ﬀ": "ff", "ﬁ": "fi", "ﬂ": "fl", "ﬃ": "ffi", "ﬄ": "ffl", "ﬅ": "ft"}
+"""
+参考资料  https://en.wikipedia.org/wiki/Alphabetic_Presentation_Forms
+    Alphabetic Presentation Forms  
+    U+FB00 - U+FB4F 
+"""
 
 
 def replace_ligature(text: str) -> str:
