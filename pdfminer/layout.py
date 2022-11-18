@@ -21,7 +21,7 @@ from .pdffont import PDFFont
 from .pdfinterp import Color
 from .pdfinterp import PDFGraphicState
 from .pdftypes import PDFStream
-from .utils import INF
+from .utils import INF, apply_matrix_rotation_and_skew
 from .utils import LTComponentT
 from .utils import Matrix
 from .utils import Plane
@@ -377,6 +377,7 @@ class LTChar(LTComponent, LTText):
             bbox_lower_left = (0, 0)
             bbox_upper_right = (self.adv, fontsize)
         (a, b, c, d, e, f) = self.matrix
+        self.rotation_tan, self.skew = apply_matrix_rotation_and_skew(self.matrix)
         self.upright = 0 < a * d * scaling and b * c <= 0
         (x0, y0) = apply_matrix_pt(self.matrix, bbox_lower_left)
         (x1, y1) = apply_matrix_pt(self.matrix, bbox_upper_right)
