@@ -37,6 +37,8 @@ INF = (1 << 31) - 1
 
 FileOrName = Union[pathlib.PurePath, str, io.IOBase]
 AnyIO = Union[TextIO, BinaryIO]
+NEGATIVE_INFINITY = float('-inf')
+INFINITY = float('inf')
 
 
 class open_filename(object):
@@ -262,6 +264,23 @@ def apply_matrix_pt(m: Matrix, v: Point) -> Point:
     (x, y) = v
     """Applies a matrix to a point."""
     return a * x + c * y + e, b * x + d * y + f
+
+
+def apply_matrix_rotation_and_skew(m: Matrix) -> (float, bool):
+    """estimation the rotation angle and skew from matrix"""
+    (a, b, c, d, e, f) = m
+    rotation_tan = 0
+    skew = False
+    # There are rotations or skew
+    if b != 0 or c != 0:
+        if b != -c:
+            skew = True
+        if a == 0:
+            rotation_tan = NEGATIVE_INFINITY if b < 0 else INFINITY
+        else:
+            rotation_tan = b / a
+
+    return rotation_tan, skew
 
 
 def apply_matrix_norm(m: Matrix, v: Point) -> Point:
